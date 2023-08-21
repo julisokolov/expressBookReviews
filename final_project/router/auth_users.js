@@ -16,10 +16,10 @@ const isValid = (username)=>{
     }
 };
 const authenticatedUser = (username,password)=>{
-    let users = users.filter((user)=>{
+    let existingUser = users.filter((user)=>{
       return (user.username === username && user.password === password)
     });
-    if(users.length > 0){
+    if(existingUser.length > 0){
       return true;
     } else {
       return false;
@@ -49,8 +49,22 @@ regd_users.post("/login", (req, res) => {
 })
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const currentUser = req.session.authorization['username'];
+    const bookReviews = books[req.params.isbn].reviews;
+    if (bookReviews) {
+        const allUsernames = Object.keys(bookReviews);
+        const existingReview = allUsernames.filter((username)=>{
+            return (username === currentUser)
+        });
+        if (existingReview.length > 0) {
+            bookReviews[currentUser] = req.body.review;
+            return res.status(200).json({message: "Review was successfully updated."});
+        } else {
+            //bookReviews = {...bookReviews, bookReviews.length: {"username":currentUser,"review":req.body.review}};
+            return res.status(200).json({message: "Review was successfully added."});
+        }
+    }
+    return res.status(404).json({message: "Unable to register user."});
 });
 
 module.exports.authenticated = regd_users;
