@@ -60,12 +60,30 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
             bookReviews[currentUser] = req.body.review;
             return res.status(200).json({message: "Review was successfully updated."});
         } else {
-            //bookReviews = {...bookReviews, bookReviews.length: {"username":currentUser,"review":req.body.review}};
+            Object.assign(bookReviews, {"username":currentUser, "review": req.body.review});
             return res.status(200).json({message: "Review was successfully added."});
         }
     }
-    return res.status(404).json({message: "Unable to register user."});
+    return res.status(404).json({message: "Unable to edit review."});
 });
+
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    const currentUser = req.session.authorization['username'];
+    const bookReviews = books[req.params.isbn].reviews;
+    if (bookReviews) {
+        const allUsernames = Object.keys(bookReviews);
+        const existingReview = allUsernames.filter((username)=>{
+            return (username === currentUser)
+        });
+        if (existingReview.length > 0) {
+            delete bookReviews[currentUser];
+            return res.status(204).json({message: "Review was successfully deleted."});
+        } else {
+            return res.status(200).json({message: "Review not found"});
+        }
+    }
+    return res.status(404).json({message: "Unable to register user."});
+})
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
