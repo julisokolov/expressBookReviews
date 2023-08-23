@@ -19,38 +19,49 @@ public_users.post("/register", (req,res) => {
 });
 
 // Get the book list available in the shop
-public_users.get('/',function (req, res) {
-  return res.send(JSON.stringify(books, null, 4));
+public_users.get('/',async function (req, res) {
+    let promise = new Promise((resolve, reject) => {resolve(books)});
+    promise.then(
+        (allBooks) => res.send(JSON.stringify(allBooks, null, 4))
+    );
 });
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
-  const isbn = req.params.isbn;
-  return res.send(books[isbn]);
- });
+    let promise = new Promise((resolve, reject) => {resolve(books)});
+    promise.then(
+        (allBooks) => res.send(allBooks[req.params.isbn])
+    );
+});
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
-    const bookValues = Object.values(books)
-    let authorBooks = [];
-    for (let index = 0; index < bookValues.length; index++) {
-        if (bookValues[index].author == req.params.author) {
-            authorBooks.push(bookValues[index])
-        }
-    }
-    return res.send(authorBooks);
+    let promise = new Promise((resolve, reject) => {resolve(books)});
+    promise.then((allBooks) => {
+        const bookValues = Object.values(allBooks);
+        let authorBooks = [];
+        for (let index = 0; index < bookValues.length; index++) {
+            if (bookValues[index].author == req.params.author) {
+                authorBooks.push(bookValues[index])
+            }
+        };
+        return res.send(authorBooks);
+    });
 });
 
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
-    const bookValues = Object.values(books)
-    let titleBooks = [];
-    for (let index = 0; index < bookValues.length; index++) {
-        if (bookValues[index].title == req.params.title)
-        titleBooks.push(bookValues[index])
-    }
+    let promise = new Promise((resolve, reject) => {resolve(books)});
+    promise.then((allBooks) => {
+        const bookValues = Object.values(allBooks);
+        let titleBooks = [];
+        for (let index = 0; index < bookValues.length; index++) {
+            if (bookValues[index].title == req.params.title)
+            titleBooks.push(bookValues[index])
+        }
+        return res.send(titleBooks);
+    });
     
-    return res.send(titleBooks);
 });
 
 //  Get book review
